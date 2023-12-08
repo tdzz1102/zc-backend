@@ -1,30 +1,23 @@
 import pandas as pd
 import numpy as np
 import re
-from requests import Session
 from pathlib import Path
-from db import dataset_exists
+from schema.data import SelectData, QAData, DataType
+from fastapi.encoders import jsonable_encoder
+from schema.dataset import Dataset
+from utils.db import dataset_exists, get_db
 
 
-def get_session():
-    s = Session()
-    s.trust_env = False
-    try:
-        yield s
-    finally:
-        s.close()
-
-
-def load_select_dataset(dataset_path: Path):
+def load_select_dataset(dataset_path: Path, mmlu=False):
     if dataset_exists(dataset_path.stem):
         print(f"Dataset {dataset_path.stem} already exists")
         return
     
-    s = next(get_session())
     # create dataset
-    res = s.post('http://localhost:8000/dataset', json={'name': dataset_path.stem})
-    dataset_id = res.json()['id']
-    
+    r = next(get_db())
+    dataset = Dataset(name=dataset_path.stem)
+    r.hmset(f"dataset:{dataset.id}", jsonable_encoder(dataset, exclude_none=True))
+
     # create data
     df = pd.read_csv(dataset_path).dropna()
     
@@ -32,26 +25,11 @@ def load_select_dataset(dataset_path: Path):
         d = line.drop(['id'], errors='ignore').to_dict()
         # A, B, C, D -> 0, 1, 2, 3
         d['answer'] = ord(d['answer']) - ord('A')
-        res = s.post('http://localhost:8000/data', json={**d, 'dataset_id': dataset_id, 'type': 'select'})
-        return res
+        select_data = SelectData(**d, dataset_id=dataset.id, type=DataType.select)
+        r.hmset(f"data:{select_data.id}", jsonable_encoder(select_data, exclude_none=True))
+        return select_data
     
-    df.apply(create_data_from_line, axis=1)
-    
-
-def load_mmlu_select_dataset(dataset_path: Path):
-    if dataset_exists(dataset_path.stem):
-        print(f"Dataset {dataset_path.stem} already exists")
-        return
-    
-    s = next(get_session())
-    # create dataset
-    res = s.post('http://localhost:8000/dataset', json={'name': dataset_path.stem})
-    dataset_id = res.json()['id']
-    
-    # create data
-    df = pd.read_csv(dataset_path).dropna()
-    
-    def create_data_from_line(line: pd.DataFrame):
+    def create_mmlu_data_from_line(line: pd.DataFrame):
         d = line.to_dict()
         pattern = r'"([^"]+)"'
         matches = re.findall(pattern, d['choices'])
@@ -61,21 +39,22 @@ def load_mmlu_select_dataset(dataset_path: Path):
         d['C'] = options[2]
         d['D'] = options[3]
         d['answer'] = int(d['answer'][0])
-        res = s.post('http://localhost:8000/data', json={**d, 'dataset_id': dataset_id, 'type': 'select'})
-        return res
+        select_data = SelectData(**d, dataset_id=dataset.id, type=DataType.select)
+        r.hmset(f"data:{select_data.id}", jsonable_encoder(select_data, exclude_none=True))
+        return select_data
     
-    df.apply(create_data_from_line, axis=1)
-
+    df.apply(create_data_from_line if not mmlu else create_mmlu_data_from_line, axis=1)
+    
 
 def load_qa_dataset(dataset_path: Path):
     if dataset_exists(dataset_path.stem):
         print(f"Dataset {dataset_path.stem} already exists")
         return
     
-    s = next(get_session())
     # create dataset
-    res = s.post('http://localhost:8000/dataset', json={'name': dataset_path.stem})
-    dataset_id = res.json()['id']
+    r = next(get_db())
+    dataset = Dataset(name=dataset_path.stem)
+    r.hmset(f"dataset:{dataset.id}", jsonable_encoder(dataset, exclude_none=True))
     
     # create data
     df = pd.read_csv(dataset_path, names=['question', 'subject', 'answer', 'answer_GPT35', 'answer_GPT4'])
@@ -83,8 +62,9 @@ def load_qa_dataset(dataset_path: Path):
     
     def create_data_from_line(line: pd.DataFrame):
         d = line.to_dict()
-        res = s.post('http://localhost:8000/data', json={**d, 'dataset_id': dataset_id, 'type': 'qa'})
-        return res
+        qa_data = QAData(**d, dataset_id=dataset.id, type=DataType.qa)
+        r.hmset(f"data:{qa_data.id}", jsonable_encoder(qa_data, exclude_none=True))
+        return qa_data
     
     df.apply(create_data_from_line, axis=1)
     
@@ -93,7 +73,7 @@ def load_all_dataset():
     data_path = Path(__file__).parent.parent / "data"
     load_select_dataset(data_path / "ceval_select.csv")
     load_select_dataset(data_path / "cmmlu_select.csv")
-    load_mmlu_select_dataset(data_path / "mmlu_select.csv")
+    load_select_dataset(data_path / "mmlu_select.csv", mmlu=True)
     load_qa_dataset(data_path / "zbench_common.csv")
     load_qa_dataset(data_path / "zbench_emergent.csv")
     

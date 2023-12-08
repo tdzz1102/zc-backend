@@ -1,12 +1,23 @@
 import redis
+from requests import Session
+import os
 
 
 def get_db():
-    r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
     try:
         yield r
     finally:
         r.close()
+        
+
+def get_requests_session():
+    s = Session()
+    s.trust_env = False
+    try:
+        yield s
+    finally:
+        s.close()
 
 
 def dataset_exists(name: str):
@@ -18,3 +29,12 @@ def dataset_exists(name: str):
         if d["name"] == name:
             return True
     return False
+
+
+def get_models_name():
+    r = next(get_db())
+    s = next(get_requests_session())
+    res = s.get(f"{os.getenv('LLM_URL')}/models")
+    data = res.json()["data"]
+    for model in data:
+        r.sadd("models", model["id"])
