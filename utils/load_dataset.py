@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import re
 from requests import Session
 from pathlib import Path
@@ -30,7 +31,6 @@ def load_select_dataset(dataset_path: Path):
     def create_data_from_line(line: pd.DataFrame):
         d = line.drop(['id'], errors='ignore').to_dict()
         # A, B, C, D -> 0, 1, 2, 3
-        print(d['answer'])
         d['answer'] = ord(d['answer']) - ord('A')
         res = s.post('http://localhost:8000/data', json={**d, 'dataset_id': dataset_id, 'type': 'select'})
         return res
@@ -78,7 +78,8 @@ def load_qa_dataset(dataset_path: Path):
     dataset_id = res.json()['id']
     
     # create data
-    df = pd.read_csv(dataset_path, names=['question', 'subject', 'answer', 'answer_GPT35', 'answer_GPT4']).dropna()
+    df = pd.read_csv(dataset_path, names=['question', 'subject', 'answer', 'answer_GPT35', 'answer_GPT4'])
+    df.replace([np.nan], [None], inplace=True)
     
     def create_data_from_line(line: pd.DataFrame):
         d = line.to_dict()
