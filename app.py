@@ -40,4 +40,4 @@ def root():
 if __name__ == "__main__":
     thread = threading.Thread(target=autorating, daemon=True)
     thread.start()
-    uvicorn.run('app:app')
+    uvicorn.run('app:app', host="0.0.0.0")
