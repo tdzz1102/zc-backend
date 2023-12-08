@@ -1,9 +1,10 @@
 import redis
 from requests import Session
 import os
+from typing import Generator
 
 
-def get_db():
+def get_db() -> Generator[redis.Redis, None, None]:
     r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
     try:
         yield r

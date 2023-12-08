@@ -24,6 +24,8 @@ def get_data_list(dataset_id: str = None):
 def create_data(data: SelectData | QAData):
     r = next(get_db())
     r.hmset(f"data:{data.id}", jsonable_encoder(data, exclude_none=True))
+    if data.type == DataType.select:
+        r.sadd('autorating', str(data.id))
     return data
 
 
@@ -43,4 +45,6 @@ def delete_data(data_id: str):
 def update_data(data_id: str, data: SelectData | QAData):
     r = next(get_db())
     r.hmset(f"data:{data_id}", jsonable_encoder(data, exclude_none=True))
+    if data.type == DataType.select:
+        r.sadd('autorating', str(data.id))
     return data

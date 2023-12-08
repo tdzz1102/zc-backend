@@ -1,15 +1,15 @@
+import random
 from fastapi import APIRouter
 from utils.db import get_db
 from schema.rating import *
 from utils.llm_client import get_llm_response
-import random
 
 
 router = APIRouter()
 
 
 @router.get("/result", response_model=list[RatingResult])
-def get_select_result(sort_by: str = "correct_rate"):
+def get_result(sort_by: str = "correct_rate"):
     r = next(get_db())
     models = r.smembers("models")
     res = []
@@ -31,13 +31,28 @@ def get_select_result(sort_by: str = "correct_rate"):
     return res
 
 
+@router.get("/objective")
+def get_objective_rating_question():
+    r = next(get_db())
+    keys = r.keys("data:*")
+    while True:
+        key = random.choice(keys)
+        if r.hget(key, "type") == "select":
+            break
+    models = list(r.smembers("models"))
+    model = random.choice(models)
+    question = f"选择题：\n{r.hget(key, 'question')}\nA.{r.hget(key, 'A')}\nB.{r.hget(key, 'B')}\nC.{r.hget(key, 'C')}\nD.{r.hget(key, 'D')}\n请你只给出答案序号，不需要解题过程"
+    answer = get_llm_response(model, question)
+    return [question, model, answer]
+
+
 @router.get("/subjective", response_model=SubjectiveQuestion)
 def get_subjective_rating_question():
     r = next(get_db())
     keys = r.keys("data:*")
     while True:
         key = random.choice(keys)
-        if r.hget(key, "type") == "select":
+        if r.hget(key, "type") == "qa":
             break
     models = list(r.smembers("models"))
     model = random.choice(models)
@@ -64,7 +79,7 @@ def get_competitive_rating_question():
     keys = r.keys("data:*")
     while True:
         key = random.choice(keys)
-        if r.hget(key, "type") == "select":
+        if r.hget(key, "type") == "qa":
             break
     models = list(r.smembers("models"))
     model1, model2 = random.sample(models, 2)

@@ -27,10 +27,10 @@ def load_select_dataset(dataset_path: Path, mmlu=False):
     
     def create_data_from_line(line: pd.DataFrame):
         d = line.drop(['id'], errors='ignore').to_dict()
-        # A, B, C, D -> 0, 1, 2, 3
         d['answer'] = ord(d['answer']) - ord('A')
         select_data = SelectData(**d, dataset_id=dataset.id, type=DataType.select)
         r.hmset(f"data:{select_data.id}", jsonable_encoder(select_data, exclude_none=True))
+        r.sadd('autorating', str(select_data.id))
         return select_data
     
     def create_mmlu_data_from_line(line: pd.DataFrame):
@@ -45,6 +45,7 @@ def load_select_dataset(dataset_path: Path, mmlu=False):
         d['answer'] = int(d['answer'][0])
         select_data = SelectData(**d, dataset_id=dataset.id, type=DataType.select)
         r.hmset(f"data:{select_data.id}", jsonable_encoder(select_data, exclude_none=True))
+        r.sadd('autorating', str(select_data.id))
         return select_data
     
     df.apply(create_data_from_line if not mmlu else create_mmlu_data_from_line, axis=1)
