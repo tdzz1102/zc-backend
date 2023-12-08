@@ -2,7 +2,6 @@ from requests import Session
 from fastapi import APIRouter
 from schema.llm import *
 from openai import OpenAI
-from utils.db import get_db
 import os
 
 
@@ -28,7 +27,7 @@ def get_model_list() -> list:
 
 @router.post("/chat")
 def make_chat(data: UserMessage):
-    client = OpenAI(base_url=os.getenv('LLM_URL'), api_key="sk-5b9b7b0b-5b7e-4b7e-8b9b-7b0b5b7e4b7e")
+    client = OpenAI(base_url=os.getenv('LLM_URL'), api_key=os.getenv('API_KEY'))
 
     completion = client.chat.completions.create(
         model='mistral_7b',

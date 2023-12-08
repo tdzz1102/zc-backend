@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from views.dataset import router as dataset_router
 from views.data import router as data_router
-from views.llm import router as lm_router
+from views.llm import router as llm_router
+from views.rating import router as rating_router
 from logging import getLogger
 
 from utils.db import get_models_name
@@ -13,7 +14,8 @@ from dotenv import load_dotenv
 app = FastAPI()
 app.include_router(dataset_router, prefix="/dataset")
 app.include_router(data_router, prefix="/data")
-app.include_router(lm_router, prefix="/lm")
+app.include_router(llm_router, prefix="/llm")
+app.include_router(rating_router, prefix="/rating")
 logger = getLogger('uvicorn.app')
 
 

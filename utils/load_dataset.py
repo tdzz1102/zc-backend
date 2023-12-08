@@ -7,10 +7,14 @@ from fastapi.encoders import jsonable_encoder
 from schema.dataset import Dataset
 from utils.db import dataset_exists, get_db
 
+from logging import getLogger
+
+logger = getLogger('uvicorn.app')
+
 
 def load_select_dataset(dataset_path: Path, mmlu=False):
     if dataset_exists(dataset_path.stem):
-        print(f"Dataset {dataset_path.stem} already exists")
+        logger.info(f"Dataset {dataset_path.stem} already exists")
         return
     
     # create dataset
@@ -48,7 +52,7 @@ def load_select_dataset(dataset_path: Path, mmlu=False):
 
 def load_qa_dataset(dataset_path: Path):
     if dataset_exists(dataset_path.stem):
-        print(f"Dataset {dataset_path.stem} already exists")
+        logger.info(f"Dataset {dataset_path.stem} already exists")
         return
     
     # create dataset
