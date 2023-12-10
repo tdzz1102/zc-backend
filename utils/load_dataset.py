@@ -6,10 +6,7 @@ from schema.data import SelectData, QAData, DataType
 from fastapi.encoders import jsonable_encoder
 from schema.dataset import Dataset
 from utils.db import dataset_exists, get_db
-
-from logging import getLogger
-
-logger = getLogger('uvicorn.app')
+from utils.logging import logger
 
 
 def load_select_dataset(dataset_path: Path, mmlu=False):
@@ -53,7 +50,7 @@ def load_select_dataset(dataset_path: Path, mmlu=False):
 
 def load_qa_dataset(dataset_path: Path):
     if dataset_exists(dataset_path.stem):
-        logger.info(f"Dataset {dataset_path.stem} already exists")
+        logger.info(f"Data·set {dataset_path.stem} already exists")
         return
     
     # create dataset

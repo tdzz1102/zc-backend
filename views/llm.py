@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from schema.llm import *
 from openai import OpenAI
 import os
+from utils.logging import logger
 
 
 router = APIRouter()
@@ -19,10 +20,13 @@ def get_session():
 
 @router.get("/models")
 def get_model_list() -> list:
-    s = next(get_session())
-    res = s.get(f"{os.getenv('LLM_URL')}/models")
-    data = res.json()["data"]
-    return data
+    try:
+        s = next(get_session())
+        res = s.get(f"{os.getenv('LLM_URL')}/models")
+        data = res.json()["data"]
+        return data
+    except Exception as e:
+        logger.error(e)
 
 
 @router.post("/chat")

@@ -1,10 +1,7 @@
 import os
-from logging import getLogger
 from schema.data import SelectData
 from openai import OpenAI
-
-
-logger = getLogger('uvicorn.app')
+from utils.logging import logger
 
 
 def get_llm_response(model: str, content: str) -> str:

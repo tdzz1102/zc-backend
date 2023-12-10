@@ -2,6 +2,7 @@ import redis
 from requests import Session
 import os
 from typing import Generator
+from utils.logging import logger
 
 
 def get_db() -> Generator[redis.Redis, None, None]:
@@ -35,7 +36,10 @@ def dataset_exists(name: str):
 def get_models_name():
     r = next(get_db())
     s = next(get_requests_session())
-    res = s.get(f"{os.getenv('LLM_URL')}/models")
-    data = res.json()["data"]
-    for model in data:
-        r.sadd("models", model["id"])
+    try:
+        res = s.get(f"{os.getenv('LLM_URL')}/models")
+        data = res.json()["data"]
+        for model in data:
+            r.sadd("models", model["id"])
+    except Exception as e:
+        logger.error(e)
