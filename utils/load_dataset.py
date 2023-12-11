@@ -11,6 +11,10 @@ from utils.db import dataset_exists, get_db
 from utils.logging import logger
 
 
+def get_data_path(dataset_name: str):
+    return Path(__file__).parent.parent / "data" / f"{dataset_name}"
+
+
 def load_select_dataset(dataset_path: Path, mmlu=False):
     if dataset_exists(dataset_path.stem):
         logger.info(f"Dataset {dataset_path.stem} already exists")

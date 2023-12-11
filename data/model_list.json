@@ -1,0 +1,101 @@
+{
+    "object": "list",
+    "data": [
+        {
+            "id": "mistral_7b",
+            "object": "model",
+            "created": 1702310699,
+            "owned_by": "fastchat",
+            "root": "mistral_7b",
+            "parent": null,
+            "permission": [
+                {
+                    "id": "modelperm-izud8ipXdzhQ2v7ftypDQo",
+                    "object": "model_permission",
+                    "created": 1702310699,
+                    "allow_create_engine": false,
+                    "allow_sampling": true,
+                    "allow_logprobs": true,
+                    "allow_search_indices": true,
+                    "allow_view": true,
+                    "allow_fine_tuning": false,
+                    "organization": "*",
+                    "group": null,
+                    "is_blocking": false
+                }
+            ]
+        },
+        {
+            "id": "qwen_7b_chat",
+            "object": "model",
+            "created": 1702310699,
+            "owned_by": "fastchat",
+            "root": "qwen_7b_chat",
+            "parent": null,
+            "permission": [
+                {
+                    "id": "modelperm-3CjG7WPmDbwCp8dEBJHUyr",
+                    "object": "model_permission",
+                    "created": 1702310699,
+                    "allow_create_engine": false,
+                    "allow_sampling": true,
+                    "allow_logprobs": true,
+                    "allow_search_indices": true,
+                    "allow_view": true,
+                    "allow_fine_tuning": false,
+                    "organization": "*",
+                    "group": null,
+                    "is_blocking": false
+                }
+            ]
+        },
+        {
+            "id": "vicuna_7b",
+            "object": "model",
+            "created": 1702310699,
+            "owned_by": "fastchat",
+            "root": "vicuna_7b",
+            "parent": null,
+            "permission": [
+                {
+                    "id": "modelperm-CGpP96KKXNKstJtTEwvLXD",
+                    "object": "model_permission",
+                    "created": 1702310699,
+                    "allow_create_engine": false,
+                    "allow_sampling": true,
+                    "allow_logprobs": true,
+                    "allow_search_indices": true,
+                    "allow_view": true,
+                    "allow_fine_tuning": false,
+                    "organization": "*",
+                    "group": null,
+                    "is_blocking": false
+                }
+            ]
+        },
+        {
+            "id": "zephyr_7b",
+            "object": "model",
+            "created": 1702310699,
+            "owned_by": "fastchat",
+            "root": "zephyr_7b",
+            "parent": null,
+            "permission": [
+                {
+                    "id": "modelperm-3tQsX295XcjCwUmrowGiwD",
+                    "object": "model_permission",
+                    "created": 1702310699,
+                    "allow_create_engine": false,
+                    "allow_sampling": true,
+                    "allow_logprobs": true,
+                    "allow_search_indices": true,
+                    "allow_view": true,
+                    "allow_fine_tuning": false,
+                    "organization": "*",
+                    "group": null,
+                    "is_blocking": false
+                }
+            ]
+        }
+    ]
+}

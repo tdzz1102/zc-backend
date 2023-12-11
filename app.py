@@ -14,6 +14,7 @@ from views.dataset import router as dataset_router
 from views.llm import router as llm_router
 from views.rating import router as rating_router
 from views.auth import router as auth_router
+from views.follow import router as follow_router
 from schema.auth import User
 from schema.common import *
 
@@ -24,6 +25,7 @@ app.include_router(data_router, prefix="/data")
 app.include_router(llm_router, prefix="/llm")
 app.include_router(rating_router, prefix="/rating")
 app.include_router(auth_router, prefix="/auth")
+app.include_router(follow_router, prefix="/follow")
 
 
 @app.on_event("startup")

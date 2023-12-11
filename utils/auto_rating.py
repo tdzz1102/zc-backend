@@ -34,7 +34,7 @@ def autorating():
         if n:
             logger.info(f"autorating {n} data...")
         else:
-            logger.info("no data to autorating")
+            logger.debug("no data to autorating")
         for i, data_id in enumerate(data_ids):
             feature = executor.submit(autorating_worker, data_id)
             logger.info(f"autorating {i+1}/{n}")
