@@ -1,10 +1,11 @@
 import random
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from schema.rating import *
 from utils.db import get_db
 from utils.llm_client import get_llm_response
+from utils.auth import get_current_user
 
 router = APIRouter()
 
@@ -32,23 +33,11 @@ def get_result(sort_by: str = "correct_rate"):
     return res
 
 
-@router.get("/objective")
-def get_objective_rating_question():
-    r = next(get_db())
-    keys = r.keys("data:*")
-    while True:
-        key = random.choice(keys)
-        if r.hget(key, "type") == "select":
-            break
-    models = list(r.smembers("models"))
-    model = random.choice(models)
-    question = f"选择题：\n{r.hget(key, 'question')}\nA.{r.hget(key, 'A')}\nB.{r.hget(key, 'B')}\nC.{r.hget(key, 'C')}\nD.{r.hget(key, 'D')}\n请你只给出答案序号，不需要解题过程"
-    answer = get_llm_response(model, question)
-    return [question, model, answer]
-
-
 @router.get("/subjective", response_model=SubjectiveQuestion)
 def get_subjective_rating_question():
+    '''
+    获取主观题评分题目
+    '''
     r = next(get_db())
     keys = r.keys("data:*")
     while True:
@@ -64,18 +53,24 @@ def get_subjective_rating_question():
     )
     
 
-@router.post("/subjective")
-def submit_subjective_rating_result(subjective_result: SubjectiveResult):
+@router.post("/subjective", response_model=CommonStatus)
+def submit_subjective_rating_result(subjective_result: SubjectiveResult, current_user = Depends(get_current_user)):
+    '''
+    提交主观题评分结果
+    '''
     r = next(get_db())
     models = r.smembers("models")
     if subjective_result.model_name not in models:
-        return {"message": "invalid result"}
+        return CommonStatus(message="invalid model")
     r.incr(f"rating:{subjective_result.model_name}:{subjective_result.evaluation.value}")
-    return {"message": "ok"}
+    return CommonStatus(message="ok")
     
 
 @router.get("/competitive", response_model=CompetitiveQuestion)
 def get_competitive_rating_question():
+    '''
+    获取对抗评分题目
+    '''
     r = next(get_db())
     keys = r.keys("data:*")
     while True:
@@ -92,15 +87,18 @@ def get_competitive_rating_question():
     )
 
 
-@router.post("/competitive")
-def submit_competitive_rating_result(competitive_result: CompetitiveResult):
+@router.post("/competitive", response_model=CommonStatus)
+def submit_competitive_rating_result(competitive_result: CompetitiveResult, current_user = Depends(get_current_user)):
+    '''
+    提交对抗评分结果
+    '''
     r = next(get_db())
     models = r.smembers("models")
     if competitive_result.winner not in models \
         or competitive_result.loser not in models \
         or competitive_result.winner == competitive_result.loser:
-        return {"message": "invalid result"}
+        return CommonStatus(message="invalid result")
     r.incr(f"rating:{competitive_result.winner}:win")
     r.incr(f"rating:{competitive_result.loser}:lose")
-    return {"message": "ok"}
+    return CommonStatus(message="ok")
     

@@ -3,6 +3,7 @@ from enum import Enum
 from pydantic import BaseModel, validator
 
 from schema.data import QAData, SelectData
+from schema.common import *
 
 
 class RatingResult(BaseModel):

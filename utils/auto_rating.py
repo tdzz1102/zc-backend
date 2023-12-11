@@ -22,8 +22,7 @@ def autorating_worker(data_id: str):
             r.incr(f"rating:{model}:correct")
         else:
             r.incr(f"rating:{model}:incorrect")
-    return 20231208
-    
+    return 20231208 # 返回值无所谓，只是为了让 ThreadPoolExecutor.submit() 返回一个 Future 对象
     
 
 def autorating():
