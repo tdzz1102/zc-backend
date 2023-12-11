@@ -1,6 +1,6 @@
 from logging import getLogger
-from uvicorn.config import LOGGING_CONFIG
 
+from uvicorn.config import LOGGING_CONFIG
 
 logger = getLogger('uvicorn.app')
 logger.setLevel("DEBUG")

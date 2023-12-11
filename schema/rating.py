@@ -1,6 +1,8 @@
-from pydantic import BaseModel, validator
-from schema.data import SelectData, QAData
 from enum import Enum
+
+from pydantic import BaseModel, validator
+
+from schema.data import QAData, SelectData
 
 
 class RatingResult(BaseModel):

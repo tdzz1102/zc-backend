@@ -1,12 +1,13 @@
 # 客观题自动评分
-from time import sleep
 from concurrent.futures import ThreadPoolExecutor
+from time import sleep
+
+from dotenv import load_dotenv
+
 from schema.data import SelectData
 from utils.db import get_db
 from utils.llm_client import get_llm_select_result
-from dotenv import load_dotenv
 from utils.logging import logger
-
 
 load_dotenv()
 

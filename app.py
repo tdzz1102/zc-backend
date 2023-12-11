@@ -1,17 +1,17 @@
-import uvicorn
 import threading
 
+import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI
-from views.dataset import router as dataset_router
-from views.data import router as data_router
-from views.llm import router as llm_router
-from views.rating import router as rating_router
+
+from utils.auto_rating import autorating
 from utils.db import get_models_name
 from utils.load_dataset import load_all_dataset
-from dotenv import load_dotenv
-from utils.auto_rating import autorating
 from utils.logging import logger
-
+from views.data import router as data_router
+from views.dataset import router as dataset_router
+from views.llm import router as llm_router
+from views.rating import router as rating_router
 
 app = FastAPI()
 app.include_router(dataset_router, prefix="/dataset")

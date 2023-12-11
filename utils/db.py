@@ -1,7 +1,9 @@
-import redis
-from requests import Session
 import os
 from typing import Generator
+
+import redis
+from requests import Session
+
 from utils.logging import logger
 
 

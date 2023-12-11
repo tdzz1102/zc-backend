@@ -1,6 +1,8 @@
 import os
-from schema.data import SelectData
+
 from openai import OpenAI
+
+from schema.data import SelectData
 from utils.logging import logger
 
 

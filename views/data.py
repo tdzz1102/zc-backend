@@ -1,8 +1,8 @@
-from fastapi.encoders import jsonable_encoder
 from fastapi import APIRouter
-from utils.db import get_db
-from schema.data import *
+from fastapi.encoders import jsonable_encoder
 
+from schema.data import *
+from utils.db import get_db
 
 router = APIRouter()
 

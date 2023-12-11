@@ -1,9 +1,10 @@
 import random
-from fastapi import APIRouter
-from utils.db import get_db
-from schema.rating import *
-from utils.llm_client import get_llm_response
 
+from fastapi import APIRouter
+
+from schema.rating import *
+from utils.db import get_db
+from utils.llm_client import get_llm_response
 
 router = APIRouter()
 

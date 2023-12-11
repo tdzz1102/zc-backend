@@ -1,10 +1,11 @@
-from requests import Session
-from fastapi import APIRouter
-from schema.llm import *
-from openai import OpenAI
 import os
-from utils.logging import logger
 
+from fastapi import APIRouter
+from openai import OpenAI
+from requests import Session
+
+from schema.llm import *
+from utils.logging import logger
 
 router = APIRouter()
 
@@ -31,10 +32,11 @@ def get_model_list() -> list:
 
 @router.post("/chat")
 def make_chat(data: UserMessage):
-    client = OpenAI(base_url=os.getenv('LLM_URL'), api_key=os.getenv('API_KEY'))
+    client = OpenAI(base_url=os.getenv("LLM_URL"),
+                    api_key=os.getenv("API_KEY"))
 
     completion = client.chat.completions.create(
-        model='mistral_7b',
+        model="mistral_7b",
         messages=[
             {"role": "user", "content": data.message},
         ],
@@ -42,4 +44,3 @@ def make_chat(data: UserMessage):
     )
 
     return {"message": completion.choices[0].message.content}
-    

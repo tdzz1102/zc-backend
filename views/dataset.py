@@ -1,10 +1,10 @@
 import datetime as dt
 
 from fastapi import APIRouter
-from utils.db import get_db
-from schema.dataset import *
 from fastapi.encoders import jsonable_encoder
 
+from schema.dataset import *
+from utils.db import get_db
 
 router = APIRouter()
 
