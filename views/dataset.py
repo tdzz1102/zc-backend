@@ -1,6 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File
+from fastapi.responses import FileResponse
 from fastapi.encoders import jsonable_encoder
 from typing import List
+import os
 
 from schema.dataset import *
 from utils.db import get_db
@@ -43,3 +45,19 @@ def update_dataset(dataset_id: str, dataset: Dataset):
     r = next(get_db())
     r.hmset(f"dataset:{dataset_id}", jsonable_encoder(dataset, exclude_none=True))
     return dataset
+
+
+@router.post("/upload")
+def upload_dataset_file(file: UploadFile = File(...)):
+    file_location = f"data/{file.filename}"
+    with open(file_location, "wb+") as file_object:
+        file_object.write(file.file.read())
+    return {"info": f"file '{file.filename}' saved at '{file_location}'"}
+
+
+@router.get("/download/{filename}")
+def download_dataset_file(filename: str):
+    file_location = f"data/{filename}"
+    if os.path.exists(file_location):
+        return FileResponse(path=file_location, filename=filename)
+    return {"error": "File not found."}
