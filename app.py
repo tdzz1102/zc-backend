@@ -3,6 +3,7 @@ import threading
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 
 from utils.auto_rating import autorating
 from utils.db import get_models_name
@@ -26,6 +27,18 @@ app.include_router(llm_router, prefix="/llm")
 app.include_router(rating_router, prefix="/rating")
 app.include_router(auth_router, prefix="/auth")
 app.include_router(follow_router, prefix="/follow")
+
+origins = [
+    "*",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
