@@ -61,7 +61,7 @@ def load_qa_dataset(dataset_path: Path):
     
     # create dataset
     r = next(get_db())
-    dataset = Dataset(name=dataset_path.stem)
+    dataset = Dataset(name=dataset_path.stem, type=DataType.qa)
     r.hmset(f"dataset:{dataset.id}", jsonable_encoder(dataset, exclude_none=True))
     
     # create data
