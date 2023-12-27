@@ -9,6 +9,7 @@ from schema.common import *
 class RatingResult(BaseModel):
     model_name: str
     dataset_id: str
+    dataset_name: str
     
     # 客观评测：正确，错误
     correct: int
