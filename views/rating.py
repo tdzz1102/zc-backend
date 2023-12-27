@@ -14,22 +14,40 @@ router = APIRouter()
 def get_result(sort_by: str = "correct_rate"):
     r = next(get_db())
     models = r.smembers("models")
+    datasets = r.keys("dataset:*")
+
+    res = {}
+
+    for dataset_key in datasets:
+        dataset_id = dataset_key.split(":")[-1]
+        datasets = r.keys("dataset:*")  # 假设数据集键以 "dataset:" 开头
+
     res = []
-    for model in models:
-        res.append(
-            RatingResult(
+
+    for dataset_key in datasets:
+        dataset_id = dataset_key.split(":")[-1]
+
+        for model in models:
+            rating_result = RatingResult(
                 model_name=model,
-                correct=int(r.get(f"rating:{model}:correct") or 0),
-                incorrect=int(r.get(f"rating:{model}:incorrect") or 0),
-                good=int(r.get(f"rating:{model}:good") or 0),
-                soso=int(r.get(f"rating:{model}:soso") or 0),
-                bad=int(r.get(f"rating:{model}:bad") or 0),
-                win=int(r.get(f"rating:{model}:win") or 0),
-                lose=int(r.get(f"rating:{model}:lose") or 0),
+                dataset_id=dataset_id,
+                correct=int(r.get(f"rating:{model}:{dataset_id}:correct") or 0),
+                incorrect=int(r.get(f"rating:{model}:{dataset_id}:incorrect") or 0),
+                good=int(r.get(f"rating:{model}:{dataset_id}:good") or 0),
+                soso=int(r.get(f"rating:{model}:{dataset_id}:soso") or 0),
+                bad=int(r.get(f"rating:{model}:{dataset_id}:bad") or 0),
+                win=int(r.get(f"rating:{model}:{dataset_id}:win") or 0),
+                lose=int(r.get(f"rating:{model}:{dataset_id}:lose") or 0),
+                correct_rate=float(r.get(f"rating:{model}:{dataset_id}:correct_rate") or 0.0),
+                subjective_score=float(r.get(f"rating:{model}:{dataset_id}:subjective_score") or 0.0),
+                win_rate=float(r.get(f"rating:{model}:{dataset_id}:win_rate") or 0.0),
             )
-        )
-        if sort_by and hasattr(res[-1], sort_by):
-            res.sort(key=lambda x: getattr(x, sort_by), reverse=True)
+
+            res.append(rating_result)
+
+    if sort_by and hasattr(res[-1], sort_by):
+        res.sort(key=lambda x: getattr(x, sort_by), reverse=True)
+
     return res
 
 
@@ -60,10 +78,14 @@ def submit_subjective_rating_result(subjective_result: SubjectiveResult, current
     '''
     r = next(get_db())
     models = r.smembers("models")
+    datasets = r.keys("dataset:*")
     if subjective_result.model_name not in models:
         return CommonStatus(message="invalid model")
-    r.incr(f"rating:{subjective_result.model_name}:{subjective_result.evaluation.value}")
-    return CommonStatus(message="ok")
+    if f"dataset:{subjective_result.dataset_id}" not in datasets:
+        return CommonStatus(message="invalid dataset")
+    r.incr(f"rating:{subjective_result.model_name}:{subjective_result.dataset_id}:{subjective_result.evaluation.value}")
+
+    return CommonStatus(status="ok")
     
 
 @router.get("/competitive", response_model=CompetitiveQuestion)
@@ -94,11 +116,15 @@ def submit_competitive_rating_result(competitive_result: CompetitiveResult, curr
     '''
     r = next(get_db())
     models = r.smembers("models")
+    datasets = r.keys("dataset:*")
     if competitive_result.winner not in models \
         or competitive_result.loser not in models \
         or competitive_result.winner == competitive_result.loser:
         return CommonStatus(message="invalid result")
-    r.incr(f"rating:{competitive_result.winner}:win")
-    r.incr(f"rating:{competitive_result.loser}:lose")
-    return CommonStatus(message="ok")
+    if f"dataset:{competitive_result.dataset_id}" not in datasets:
+        return CommonStatus(message="invalid dataset")
+    r.incr(f"rating:{competitive_result.winner}:{competitive_result.dataset_id}:win")
+    r.incr(f"rating:{competitive_result.loser}:{competitive_result.dataset_id}:lose")
+
+    return CommonStatus(status="ok")
     

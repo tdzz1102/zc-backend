@@ -8,6 +8,7 @@ from schema.common import *
 
 class RatingResult(BaseModel):
     model_name: str
+    dataset_id: str
     
     # 客观评测：正确，错误
     correct: int
@@ -60,6 +61,7 @@ class SubjectiveEvaluation(str, Enum):
     
 class SubjectiveResult(BaseModel):
     model_name: str
+    dataset_id: str
     evaluation: SubjectiveEvaluation
     
     
@@ -70,5 +72,6 @@ class CompetitiveQuestion(BaseModel):
 
 
 class CompetitiveResult(BaseModel):
+    dataset_id: str
     winner: str
     loser: str

@@ -19,9 +19,9 @@ def autorating_worker(data_id: str):
     for model in models:
         res = get_llm_select_result(model, select_data)
         if res:
-            r.incr(f"rating:{model}:correct")
+            r.incr(f"rating:{model}:{data_id}:correct")
         else:
-            r.incr(f"rating:{model}:incorrect")
+            r.incr(f"rating:{model}:{data_id}:incorrect")
     return 20231208 # 返回值无所谓，只是为了让 ThreadPoolExecutor.submit() 返回一个 Future 对象
     
 
